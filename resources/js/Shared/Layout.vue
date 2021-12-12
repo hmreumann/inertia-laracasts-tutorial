@@ -6,7 +6,7 @@
     <header class="flex justify-between">
       <div class="flex items-center">
         <h1 class="text-2xl font-bold">My App</h1>
-        <p class="text-sm ml-6">Welcome back, {{ username }}!</p>
+        <p class="text-sm ml-6">Welcome back, {{ username ?? 'Guest' }}!</p>
       </div>
 
       <Nav />
@@ -27,7 +27,11 @@ export default {
 
   computed: {
     username() {
-      return this.$page.props.auth.user.username;
+        if (this.$page.props.auth != null) {
+            return this.$page.props.auth.user.username;
+        } else {
+            return 'Guest';
+        }
     },
   },
 };

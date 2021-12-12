@@ -4,7 +4,7 @@
   <div class="flex justify-between">
     <div class="flex items-center">
       <h1 class="text-3xl">Users</h1>
-      <Link href="users/create" class="text-blue-500 ml-3">New User</Link>
+      <Link v-if="can.createUser" href="users/create" class="text-blue-500 ml-3">New User</Link>
     </div>
     <input
       v-model="search"
@@ -27,7 +27,8 @@
                   <div class="flex items-center">
                     <div class="ml-4">
                       <div class="text-sm font-medium text-gray-900">
-                        {{ user.name }}
+                        {{ user.name }} <br>
+                        {{ user.email }}
                       </div>
                     </div>
                   </div>
@@ -70,6 +71,7 @@ import throttle from "lodash/throttle";
 let props = defineProps({
   users: Object,
   filters: Object,
+  can: Object,
 });
 
 let search = ref(props.filters.search);

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,17 +31,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users', function () {
         return Inertia::render('Users/Index', [
             'users' => User::query()
-                ->select('name')
+                ->select('id', 'name', 'email')
                 ->when(request('search'), fn ($builder, $search) => $builder->where('name', 'like', '%' . $search . '%'))
                 ->paginate(15)
                 ->withQUeryString(),
             'filters' => Request::only('search'),
+            'can' => [
+                'createUser' => Auth::user()->can('create', User::class),
+            ]
         ]);
-    });
+    })->name('users-index');
 
     Route::get('users/create', function () {
         return Inertia::render('Users/Create');
-    });
+    })->can('create', User::class);
 
     Route::post('users', function () {
         $validated = Request::validate([
@@ -52,6 +56,24 @@ Route::middleware(['auth'])->group(function () {
         User::create($validated);
 
         return redirect('/users');
+    });
+
+    Route::get('user/{user}/edit', function (User $user) {
+        return Inertia::render('Users/Edit', [
+            'user' => $user,
+        ]);
+    });
+
+    Route::put('user/{user}', function (User $user) {
+        $validated = Request::validate([
+            'email' => 'required|email',
+            'name' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        $user->update($validated);
+
+        return redirect()->route('users-index');
     });
 
     Route::get('/settings', function () {
